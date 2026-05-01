@@ -57,6 +57,9 @@ export const login = asyncHandler(async(req,res) => {
 })
 
 export const changePassword = asyncHandler(async (req, res) => {
+  if(req.user.role === "student") {
+    throw new ApiError(400, "Students are not allowed to change password")
+  }
   const userId = req.user._id;
   const { oldPassword, newPassword } = req.body;
   if (!userId || !oldPassword || !newPassword) {
