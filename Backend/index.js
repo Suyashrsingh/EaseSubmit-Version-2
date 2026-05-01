@@ -10,6 +10,7 @@ import { ApiResponse } from "./src/utils/api-response.js";
 // import all routes
 import healthCheckRoutes from "./src/routes/healthCheck.route.js";
 import userRoutes from "./src/routes/user.routes.js";
+import subjectRoutes from "./src/routes/subject.routes.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8080
@@ -22,6 +23,7 @@ app.use(cookieParser())
 // all routes
 app.use("/api/v1/health",healthCheckRoutes)
 app.use("/api/v1/users", userRoutes)
+app.use("/api/v1/subjects", subjectRoutes)
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
