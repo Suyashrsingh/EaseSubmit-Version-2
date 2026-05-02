@@ -10,5 +10,6 @@ router.post('/create',isLoggedIn, createStudent);
 router.post('/filter',isLoggedIn, getStudentsFiltered);
 router.patch('/update/:id', isLoggedIn, updateStudent);
 router.post('/upload', isLoggedIn, upload.single("file"), uploadStudentsFromExcel);
+router.get('/all', isLoggedIn, getAllStudents);
 
 export default router;

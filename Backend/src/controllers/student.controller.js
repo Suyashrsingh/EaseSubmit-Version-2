@@ -138,3 +138,11 @@ export const uploadStudentsFromExcel = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const getAllStudents = asyncHandler(async(req,res) => {
+  const{ className, division, batch} = req.body;
+  const students = await Student.find().select("name rollNo className division batch subjects submission").lean().populate("submission");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, students, "Students fetched successfully"));
+})

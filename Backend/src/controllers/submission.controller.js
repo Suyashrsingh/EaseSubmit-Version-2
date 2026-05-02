@@ -62,8 +62,8 @@ export const postSubmission = asyncHandler(async (req, res) => {
     );
   }
 
-  const teacher = await Teacher.findOne({
-    teacherId: user._id,
+  const teacher = await TeacherAllocation.findOne({
+    teacher: user._id,
     subject,
     subjectType,
     className,
@@ -296,7 +296,7 @@ const buildStudentFilter = (allocations) => {
 export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) => {
   const user = req.user;
 
-  const allocations = await Teacher.find({ teacherId: user._id }).lean();
+  const allocations = await TeacherAllocation.find({ teacher: user._id }).lean();
 
   if (!allocations.length) {
     throw new ApiError(404, "No allocations found");

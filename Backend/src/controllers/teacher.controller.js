@@ -21,7 +21,6 @@ export const getTeachers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, teachers, "Teachers fetched successfully"));
 });
 
-// Allocate teacher controller
 
 export const allocateTeacher = asyncHandler(async (req, res) => {
   const userRole = req.user.role;
@@ -57,14 +56,12 @@ export const allocateTeacher = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User is not a teacher");
   }
 
-  const teacherId = teacher._id;
-
   const exists = await TeacherAllocation.findOne({
-    teacher: teacherId,
+    teacher: teacher._id,
     subject,
     className,
     division,
-    batch: subjectType === "Practical" ? batch : null
+    ...(subjectType === "Practical" ? { batch } : {}),
   });
 
   if (exists) {
@@ -72,12 +69,12 @@ export const allocateTeacher = asyncHandler(async (req, res) => {
   }
 
   const allocation = await TeacherAllocation.create({
-    teacher: teacherId,
+    teacher: teacher._id,
     subject,
     className,
     division,
     subjectType,
-    batch
+    ...(subjectType === "Practical" ? { batch } : {}),
   });
 
   return res
@@ -89,14 +86,15 @@ export const teacherForSubjects = asyncHandler(async (req, res) => {
   const user = req.user;
 
   if (!user) {
-    return res.status(401).json(new ApiResponse(401, null, "Unauthorized"));
+    throw new ApiError(401, "Unauthorized");
   }
 
   const teacherId = user._id;
 
-  let allocations = await Teacher.find({
-    teacherId,
+  let allocations = await TeacherAllocation.find({
+    teacher: teacherId,
   }).lean();
+
   allocations = injectDefaultSubjects(allocations, teacherId);
 
   return res
