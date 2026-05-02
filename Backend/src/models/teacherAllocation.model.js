@@ -6,7 +6,7 @@ const teacherAllocationSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    class: {
+    className: {
         type: String,
         required: true
     },

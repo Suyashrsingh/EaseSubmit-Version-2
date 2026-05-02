@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
         default: "Teacher",
         required: true
     },
-    class:{
+    className:{
         type: String,
     },
     division:{

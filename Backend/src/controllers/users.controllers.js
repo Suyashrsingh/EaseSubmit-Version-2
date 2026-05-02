@@ -19,7 +19,7 @@ export const registerUser = asyncHandler(async(req,res) => {
         name,
         email,
         password,
-        class: req.body.class? req.body.class : "null",
+        className: req.body.className? req.body.className : "null",
         division: req.body.division? req.body.division : "null",
         role: req.body.role? req.body.role : "Teacher"
     })

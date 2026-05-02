@@ -12,7 +12,7 @@ const studentSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    class: {
+    className: {
         type: String,
         required: true  
     },
@@ -29,7 +29,7 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Verification"
     },
-    Submission:{
+    submission:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Submission"
     },

@@ -15,7 +15,7 @@ const submissionSchema = new mongoose.Schema({
         enum: ["Theory", "Practical"],
         required: true
     },
-    class:{
+    className:{
         type: String,
         required: true
     },
