@@ -13,6 +13,7 @@ import userRoutes from "./src/routes/user.routes.js";
 import subjectRoutes from "./src/routes/subject.routes.js";
 import teacherRoutes from "./src/routes/teacher.route.js";
 import studentRoutes from "./src/routes/student.route.js";
+import verifiedRoutes from "./src/routes/verified.routes.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8080
@@ -28,6 +29,7 @@ app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/subjects", subjectRoutes)
 app.use("/api/v1/teachers", teacherRoutes)
 app.use('/api/v1/students', studentRoutes)
+app.use("/api/v1/verification",verifiedRoutes)
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
