@@ -32,8 +32,8 @@ const submissionSchema = new mongoose.Schema({
     },
     status:{
         type: String,
-        enum: ["Completed", "Not Completed"],
-        default: "Not Completed"
+        enum: ["Submitted", "Not Submitted"],
+        default: "Not Submitted"
     },
     markedAt: {
         type: Date,
