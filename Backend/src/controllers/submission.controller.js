@@ -306,7 +306,7 @@ export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) =>
   const studentFilter = buildStudentFilter(allocations);
 
   const students = await Student.find(studentFilter)
-    .select("name rollNo className division batch subjects")
+    .select("name rollNumber className division batch subjects")
     .lean();
 
   const result = [];

@@ -29,10 +29,10 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Verification"
     },
-    submission:{
+    submission:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Submission"
-    },
+    }],
     isFinalSubmitted: {
         type: Boolean,
         default: false
