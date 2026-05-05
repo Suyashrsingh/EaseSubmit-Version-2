@@ -286,6 +286,7 @@ const groupAllocations = (allocations) => {
   return map;
 };
 
+
 const buildStudentFilter = (allocations) => {
   return {
     $or: allocations.map((a) => ({
@@ -294,6 +295,7 @@ const buildStudentFilter = (allocations) => {
     })),
   };
 };
+
 // Get students assigned to the logged-in teacher based on their allocations for submission marking
 export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) => {
   const user = req.user;
