@@ -1,6 +1,8 @@
 import {asyncHandler} from '../utils/async-handler.js'
 import {ApiError} from '../utils/api-error.js'; 
 import {ApiResponse} from "../utils/api-response.js"
+import { buildStudentFilter } from '../utils/student-helper.js';
+
 
 export const postSubmission = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
@@ -292,7 +294,7 @@ const buildStudentFilter = (allocations) => {
     })),
   };
 };
-
+// Get students assigned to the logged-in teacher based on their allocations for submission marking
 export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) => {
   const user = req.user;
 
@@ -302,7 +304,6 @@ export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) =>
     throw new ApiError(404, "No allocations found");
   }
 
-  const allocationMap = groupAllocations(allocations);
   const studentFilter = buildStudentFilter(allocations);
 
   const students = await Student.find(studentFilter)

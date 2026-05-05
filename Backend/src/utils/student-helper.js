@@ -1,24 +1,34 @@
-export const buildStudentFilter = ({
-  className,
-  division,
-  subject,
-  subjectType,
-  batch,
-}) => {
-  const filter = {
+export const buildStudentFilter = (input) => {
+  const buildSingle = ({
     className,
     division,
+    subject,
+    subjectType,
+    batch,
+  }) => {
+    const filter = {
+      className,
+      division,
+    };
+
+    if (subject) {
+      filter.subjects = { $in: [subject] };
+    }
+
+    if (subjectType === "Practical" && batch) {
+      filter.batch = batch;
+    }
+
+    return filter;
   };
 
-  if (subject) {
-    filter.subjects = { $in: [subject] };
+  if (Array.isArray(input)) {
+    return {
+      $or: input.map((alloc) => buildSingle(alloc)),
+    };
   }
 
-  if (subjectType === "Practical" && batch) {
-    filter.batch = batch;
-  }
-
-  return filter;
+  return buildSingle(input);
 };
 
 export const studentPopulate = [

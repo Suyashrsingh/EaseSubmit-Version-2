@@ -18,6 +18,7 @@ const studentSchema = new mongoose.Schema({
     },
     division: {
         type: String,
+        required: true
     },
     subjects: [{
         type: String,

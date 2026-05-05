@@ -42,6 +42,7 @@ export const createStudent = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, student, "Created"));
 });
 
+// Get students with optional filters for class, division, subject, subjectType, and batch - only class and division are mandatory for frontend to fetch students for submission marking
 export const getStudentsFiltered = asyncHandler(async (req, res) => {
   const { className, division, subject, subjectType, batch } = req.body;
 
@@ -71,6 +72,7 @@ export const getStudentsFiltered = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, students, "Success"));
 });
 
+// Update student details - only class coordinator
 export const updateStudent = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
 
@@ -81,7 +83,7 @@ export const updateStudent = asyncHandler(async (req, res) => {
     student.className !== req.user.className ||
     student.division !== req.user.division
   ) {
-    throw new ApiError(403, "Not allowed");
+    throw new ApiError(403, "You can only update students from your class and division  ");
   }
 
   Object.assign(student, req.body);
@@ -140,8 +142,14 @@ export const uploadStudentsFromExcel = asyncHandler(async (req, res) => {
   );
 });
 
+// get all students for tgs marking
 export const getAllStudents = asyncHandler(async(req,res) => {
   const{ className, division, batch} = req.body;
+  const user = req.user;
+
+  if(user.role !== "ClassCoordinator" && user.role !== "HOD") {
+    throw new ApiError(403, "Access denied");
+  }
   const students = await Student.find().select("name rollNo className division batch subjects submission").lean().populate("submission").sort({ rollNo: 1 });
   return res
     .status(200)
