@@ -59,6 +59,7 @@ export const getStudentsFiltered = asyncHandler(async (req, res) => {
 
   const students = await Student.find(filter)
     .populate(studentPopulate)
+    .sort({ rollNo: 1 })
     .select(studentSelect);
 
   if (!students.length) {
@@ -141,7 +142,7 @@ export const uploadStudentsFromExcel = asyncHandler(async (req, res) => {
 
 export const getAllStudents = asyncHandler(async(req,res) => {
   const{ className, division, batch} = req.body;
-  const students = await Student.find().select("name rollNo className division batch subjects submission").lean().populate("submission");
+  const students = await Student.find().select("name rollNo className division batch subjects submission").lean().populate("submission").sort({ rollNo: 1 });
   return res
     .status(200)
     .json(new ApiResponse(200, students, "Students fetched successfully"));

@@ -307,7 +307,8 @@ export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) =>
 
   const students = await Student.find(studentFilter)
     .select("name rollNumber className division batch subjects")
-    .lean();
+    .lean()
+    .sort({ rollNumber: 1 });
 
   const result = [];
 
