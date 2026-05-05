@@ -146,3 +146,24 @@ export const getAllStudents = asyncHandler(async(req,res) => {
     .status(200)
     .json(new ApiResponse(200, students, "Students fetched successfully"));
 })
+
+
+// controller for student to view their own submission details
+
+export const getStudentSubmissionStatus = asyncHandler(async(req,res) => {
+  const user = req.user;
+  if(user.role !== "Student") {
+    throw new ApiError(403, "Access denied");
+  }
+  const { rollNo } = req.body;
+  if(!rollNo) {
+    throw new ApiError(400, "Roll number is required");
+  }
+  const student = await Student.findOne({ rollNo }).select("name rollNo className division batch subjects submission").lean().populate("submission").populate("verification");
+  if(!student) {
+    throw new ApiError(404, "Student not found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, student, "Submission details fetched successfully"));
+})

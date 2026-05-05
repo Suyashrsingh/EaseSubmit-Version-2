@@ -13,8 +13,8 @@ import userRoutes from "./src/routes/user.routes.js";
 import subjectRoutes from "./src/routes/subject.routes.js";
 import teacherRoutes from "./src/routes/teacher.route.js";
 import studentRoutes from "./src/routes/student.route.js";
-import verifiedRoutes from "./src/routes/verified.routes.js";
-import submissionRoutes from "./src/routes/submission.routes.js";
+import verifiedRoutes from "./src/routes/verified.routes.js"
+import submissionRoutes from "./src/routes/submission.route.js"
 
 dotenv.config();
 const PORT = process.env.PORT || 8080
