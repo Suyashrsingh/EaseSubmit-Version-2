@@ -2,6 +2,9 @@ import {asyncHandler} from '../utils/async-handler.js'
 import {ApiError} from '../utils/api-error.js'; 
 import {ApiResponse} from "../utils/api-response.js"
 import { buildStudentFilter } from '../utils/student-helper.js';
+import Student from '../models/student.model.js';
+import Submission from '../models/submission.model.js';
+import TeacherAllocation from '../models/teacherAllocation.model.js';
 
 
 export const postSubmission = asyncHandler(async (req, res) => {
@@ -287,14 +290,6 @@ const groupAllocations = (allocations) => {
 };
 
 
-const buildStudentFilter = (allocations) => {
-  return {
-    $or: allocations.map((a) => ({
-      className: a.className,
-      division: a.division,
-    })),
-  };
-};
 
 // Get students assigned to the logged-in teacher based on their allocations for submission marking
 export const getAssignedStudentsForSubmission = asyncHandler(async (req, res) => {

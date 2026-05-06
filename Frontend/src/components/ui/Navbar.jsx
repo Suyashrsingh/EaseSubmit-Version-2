@@ -4,11 +4,13 @@ import { NavLink } from "react-router-dom";
 
 
 import { gsap } from "gsap";
+import { useAuthStore } from "../../app/stores";
+
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  
-
+  const user = useAuthStore((state) => state.user);
+  const roleRoute = useAuthStore((state) => state.roleRoute);
   // Refs for animation targets
   const navRef = useRef(null);
   const logoRef = useRef(null);
@@ -114,7 +116,7 @@ const Navbar = () => {
             </div>
 
             {/* Right: actions */}
-            {true ? (
+            {!user ? (
               <div ref={actionsRef} className="flex items-center gap-3">
                 {/* desktop actions */}
                 <div className="hidden md:flex items-center gap-3">
@@ -144,10 +146,10 @@ const Navbar = () => {
             ) : (
               <div ref={actionsRef} className="flex items-center gap-3 pr-[2vw]">
                 <NavLink
-                //   to={roleRoute(user.role)}
+                  to={roleRoute[user.role] || "/"}
                   className="text-blue-400 cursor-pointer action-item opacity-0"
                 >
-                  {/* {user.role} */}
+                  {user.role}
                 </NavLink>
               </div>
             )}

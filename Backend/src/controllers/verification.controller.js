@@ -1,6 +1,8 @@
 import {asyncHandler} from '../utils/async-handler.js'
 import {ApiError} from '../utils/api-error.js'; 
 import {ApiResponse} from "../utils/api-response.js"
+import Student from '../models/student.model.js';
+import Verification from '../models/verified.model.js';
 
 
 export const updateVerificationStatus = asyncHandler(async (req, res) => {

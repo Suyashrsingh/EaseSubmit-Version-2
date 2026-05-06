@@ -6,7 +6,7 @@ import { bulkUpdateVerificationStatus, undoVerificationStatus, updateVerificatio
 
 const router = express.Router();
 
-router.put('/update', isLoggedIn, updateVerificationStatus);
+router.put('/update/:studentId', isLoggedIn, updateVerificationStatus);
 router.post('/bulk-update', isLoggedIn, bulkUpdateVerificationStatus);
 router.delete('/undo/:studentId', isLoggedIn, undoVerificationStatus);
 

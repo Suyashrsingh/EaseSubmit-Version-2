@@ -1,13 +1,13 @@
-// services/studentUpload.service.js
-
 import { normalizeStudentRow } from "../utils/excelStudent.helper.js";
+import Student from "../models/student.model.js";
+import Verification from "../models/verified.model.js";
 
 export const processStudentUpload = async (rows, defaults, userId) => {
   const skippedRows = [];
   const rollNosInSheet = new Set();
   const validStudents = [];
 
-  //  Step 1: Normalize + Validate
+  // Step 1: Normalize + Validate
   rows.forEach((row, index) => {
     const rowNumber = index + 2;
     const student = normalizeStudentRow(row, defaults);
@@ -15,7 +15,7 @@ export const processStudentUpload = async (rows, defaults, userId) => {
     const missing = [];
 
     if (!student.name) missing.push("name");
-    if (!student.rollNo) missing.push("rollNo");
+    if (!student.rollNumber) missing.push("rollNumber");
     if (!student.className) missing.push("className");
     if (!student.division) missing.push("division");
     if (!student.batch) missing.push("batch");
@@ -24,38 +24,41 @@ export const processStudentUpload = async (rows, defaults, userId) => {
     if (missing.length) {
       skippedRows.push({
         row: rowNumber,
-        rollNo: student.rollNo,
+        rollNumber: student.rollNumber || "",
         reason: `Missing: ${missing.join(", ")}`,
       });
       return;
     }
 
-    if (rollNosInSheet.has(student.rollNo)) {
+    if (rollNosInSheet.has(student.rollNumber)) {
       skippedRows.push({
         row: rowNumber,
-        rollNo: student.rollNo,
+        rollNumber: student.rollNumber,
         reason: "Duplicate in sheet",
       });
       return;
     }
 
-    rollNosInSheet.add(student.rollNo);
-    validStudents.push(student);
+    rollNosInSheet.add(student.rollNumber);
+
+    // IMPORTANT: store rowNumber for later
+    validStudents.push({ ...student, rowNumber });
   });
 
-  //  Step 2: DB duplicate check
+  // Step 2: DB duplicate check
   const existing = await Student.find({
-    rollNo: { $in: validStudents.map((s) => s.rollNo) },
-  }).select("rollNo");
+    rollNumber: { $in: validStudents.map((s) => s.rollNumber) },
+  }).select("rollNumber");
 
-  const existingSet = new Set(existing.map((s) => s.rollNo));
+  const existingSet = new Set(existing.map((s) => s.rollNumber));
 
   const finalStudents = [];
-  validStudents.forEach((s, i) => {
-    if (existingSet.has(s.rollNo)) {
+
+  validStudents.forEach((s) => {
+    if (existingSet.has(s.rollNumber)) {
       skippedRows.push({
-        row: i + 2,
-        rollNo: s.rollNo,
+        row: s.rowNumber, // ✅ correct row
+        rollNumber: s.rollNumber,
         reason: "Already exists in DB",
       });
     } else {
@@ -63,24 +66,40 @@ export const processStudentUpload = async (rows, defaults, userId) => {
     }
   });
 
-  //  Step 3: Insert
-  const createdStudents = finalStudents.length
-    ? await Student.insertMany(finalStudents, { ordered: false })
-    : [];
+  // Remove rowNumber before insert
+  const studentsToInsert = finalStudents.map(({ rowNumber, ...rest }) => rest);
 
-  //  Step 4: Verification
+  // Step 3: Insert
+  let createdStudents = [];
+  if (studentsToInsert.length) {
+    createdStudents = await Student.insertMany(studentsToInsert, {
+      ordered: false,
+    });
+  }
+
+  // Step 4: Verification
   const verifications = createdStudents.map((s) => ({
     studentId: s._id,
     coordinatorId: userId,
     status: "Not Verified",
   }));
 
-  const createdVerifications = await Verification.insertMany(verifications);
-// Step 5: Link verification to student
-  const updates = createdStudents.map((s, i) => ({
+  const createdVerifications = verifications.length
+    ? await Verification.insertMany(verifications)
+    : [];
+
+  // Step 5: Link verification safely
+  const verificationMap = new Map();
+  createdVerifications.forEach((v) => {
+    verificationMap.set(v.studentId.toString(), v._id);
+  });
+
+  const updates = createdStudents.map((s) => ({
     updateOne: {
       filter: { _id: s._id },
-      update: { finalVerification: createdVerifications[i]._id },
+      update: {
+        finalVerification: verificationMap.get(s._id.toString()),
+      },
     },
   }));
 

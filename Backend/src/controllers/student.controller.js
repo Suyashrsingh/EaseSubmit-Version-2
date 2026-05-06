@@ -1,28 +1,33 @@
-import {asyncHandler} from '../utils/async-handler.js'
-import {ApiError} from '../utils/api-error.js'; 
-import {ApiResponse} from "../utils/api-response.js"
+import { asyncHandler } from '../utils/async-handler.js'
+import { ApiError } from '../utils/api-error.js';
+import { ApiResponse } from "../utils/api-response.js"
 import { normalizeStudentRow } from '../utils/excelStudent.helper.js';
 import { processStudentUpload } from '../services/studentUpload.services.js';
+import Student from '../models/student.model.js';
+import Submission from "../models/submission.model.js";
+import TeacherAllocation from "../models/teacherAllocation.model.js";
+import xlsx from "xlsx";
+import { buildStudentFilter, studentPopulate, studentSelect } from '../utils/student-helper.js';
 
 export const createStudent = asyncHandler(async (req, res) => {
   if (req.user.role !== "ClassCoordinator") {
     throw new ApiError(403, "Access denied");
   }
 
-  const { name, rollNo, className, division, subjects, batch } = req.body;
+  const { name, rollNumber, className, division, subjects, batch } = req.body;
 
-  if (!name || !rollNo || !className || !division || !subjects || !batch) {
+  if (!name || !rollNumber || !className || !division || !subjects || !batch) {
     throw new ApiError(400, "All fields are required");
   }
 
-  const exists = await Student.findOne({ rollNo });
+  const exists = await Student.findOne({ rollNumber });
   if (exists) {
     throw new ApiError(400, "Student already exists");
   }
 
   const student = await Student.create({
     name,
-    rollNo,
+    rollNumber,
     className,
     division,
     subjects,
@@ -60,9 +65,8 @@ export const getStudentsFiltered = asyncHandler(async (req, res) => {
 
   const students = await Student.find(filter)
     .populate(studentPopulate)
-    .sort({ rollNo: 1 })
+    .sort({ rollNumber: 1 })
     .select(studentSelect);
-
   if (!students.length) {
     throw new ApiError(404, "No students found");
   }
@@ -143,36 +147,71 @@ export const uploadStudentsFromExcel = asyncHandler(async (req, res) => {
 });
 
 // get all students for tgs marking
-export const getAllStudents = asyncHandler(async(req,res) => {
-  const{ className, division, batch} = req.body;
+export const getAllStudents = asyncHandler(async (req, res) => {
+  const { className, division, batch } = req.body;
   const user = req.user;
+  console.log(req.body)
 
-  if(user.role !== "ClassCoordinator" && user.role !== "HOD") {
-    throw new ApiError(403, "Access denied");
+  let query = {};
+  if (!(className == "ANY" || division == "ANY")) {
+    if (className) query.className = className;
+    if (division) query.division = division;
+    if (batch) query.batch = batch;
   }
-  const students = await Student.find().select("name rollNo className division batch subjects submission").lean().populate("submission").sort({ rollNo: 1 });
+
+
+  const students = await Student.find(query).select("name rollNumber className division batch subjects submission finalVerification").lean().populate("submission finalVerification").sort({ rollNumber: 1 });
   return res
     .status(200)
     .json(new ApiResponse(200, students, "Students fetched successfully"));
 })
 
+// get all students for a specific class across all divisions (HOD use)
+export const getStudentsByClass = asyncHandler(async (req, res) => {
+  const { className } = req.body;
+
+  if (!className) {
+    throw new ApiError(400, "className is required");
+  }
+
+  const students = await Student.find({ className })
+    .select("name rollNumber className division batch subjects submission finalVerification")
+    .lean()
+    .populate("submission finalVerification")
+    .sort({ division: 1, rollNumber: 1 });
+  console.log(students);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, students, `Students of class ${className} fetched successfully`));
+})
 
 // controller for student to view their own submission details
 
-export const getStudentSubmissionStatus = asyncHandler(async(req,res) => {
+export const getStudentSubmissionStatus = asyncHandler(async (req, res) => {
   const user = req.user;
-  if(user.role !== "Student") {
+
+  if (user.role !== "Student") {
     throw new ApiError(403, "Access denied");
   }
-  const { rollNo } = req.body;
-  if(!rollNo) {
+
+  const { rollNumber } = req.body;
+
+  if (!rollNumber) {
     throw new ApiError(400, "Roll number is required");
   }
-  const student = await Student.findOne({ rollNo }).select("name rollNo className division batch subjects submission").lean().populate("submission").populate("verification");
-  if(!student) {
+
+  const student = await Student.findOne({ rollNumber })
+    .select("name rollNumber className division batch subjects submission verification")
+    .populate("submission")
+    .populate("finalVerification")
+    .lean();
+
+  if (!student) {
     throw new ApiError(404, "Student not found");
   }
-  return res
-    .status(200)
-    .json(new ApiResponse(200, student, "Submission details fetched successfully"));
-})
+
+  return res.status(200).json(
+    new ApiResponse(200, student, "Submission details fetched successfully")
+  );
+});

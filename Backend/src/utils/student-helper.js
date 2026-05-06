@@ -37,4 +37,4 @@ export const studentPopulate = [
 ];
 
 export const studentSelect =
-  "name rollNo className division batch subjects finalVerification submission HodVerified";
+  "name rollNumber className division batch subjects finalVerification submission HodVerified";

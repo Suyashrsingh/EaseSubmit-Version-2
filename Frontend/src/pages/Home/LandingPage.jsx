@@ -2,8 +2,11 @@ import React from "react";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { FiUpload, FiFileText, FiUsers } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../../app/stores";
 
 const HeroSection = () => {
+  const user = useAuthStore((state) => state.user);
+  const roleRoute = useAuthStore((state) => state.roleRoute);
   return (
     <div className="h-screen w-screen pt-[12vh] px-[1vw] pb-[2vw] bg-[#f6f8fb]">
       <div className="w-screen px-[2vw] h-full flex flex-col md:flex-row items-stretch gap-8">
@@ -24,10 +27,10 @@ const HeroSection = () => {
 
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              to="/login"
+              to={user ? roleRoute[user.role] : "/login"}
               className="inline-flex items-center gap-2 rounded-lg bg-[#2563eb] px-5 py-3 text-base font-medium text-white shadow-sm hover:bg-[#1e4fd7] transition"
             >
-              Login
+              {user ? "Explorer Dashboard" : "Login"}
               <HiOutlineArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -45,9 +48,9 @@ const HeroSection = () => {
           </div>
         </div>
         <div className="w-1/2 h-full">
-          <img src="./assets/landinglogo.png" className="object-center object-contain size-full"/>
+          <img src="./assets/landinglogo.png" className="object-center object-contain size-full" />
         </div>
-        
+
       </div>
     </div>
   );

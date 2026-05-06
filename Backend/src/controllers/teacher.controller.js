@@ -1,6 +1,9 @@
 import {asyncHandler} from '../utils/async-handler.js'
 import {ApiError} from '../utils/api-error.js'; 
 import {ApiResponse} from "../utils/api-response.js"
+import User from '../models/users.model.js';
+import TeacherAllocation from '../models/teacherAllocation.model.js';
+import injectDefaultSubjects from "../utils/injectSubject.js"
 
 export const getTeachers = asyncHandler(async (req, res) => {
   const userRole = req.user.role;
@@ -52,17 +55,17 @@ export const allocateTeacher = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Teacher not found");
   }
 
-  if (teacher.role !== "Teacher") {
-    throw new ApiError(400, "User is not a teacher");
-  }
+  // if (teacher.role !== "Teacher") {
+  //   throw new ApiError(400, "User is not a teacher");
+  // }
 
   const exists = await TeacherAllocation.findOne({
-    teacher: teacher._id,
-    subject,
-    className,
-    division,
-    ...(subjectType === "Practical" ? { batch } : {}),
-  });
+  teacherId: teacher._id,
+  subject,
+  className,
+  division,
+  ...(subjectType === "Practical" ? { batch } : {}),
+});
 
   if (exists) {
     throw new ApiError(400, "Teacher already allocated");

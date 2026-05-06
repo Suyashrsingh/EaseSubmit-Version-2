@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const teacherAllocationSchema = new mongoose.Schema({
-    teacherId: {
+    teacher: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true

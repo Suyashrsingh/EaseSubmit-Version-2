@@ -1,13 +1,23 @@
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
+
+// Layouts & Public Pages
 import Navbar from "../components/ui/Navbar";
 import HeroSection from "../pages/Home/LandingPage";
 import Login from "../pages/Auth/Login";
-import { useAuthStore } from "./stores";
 
-const user = useAuthStore.getState().user;
+// Protected Route Component
+import ProtectedRoute from "./ProtectedRoute";
 
-const PublicRoutes = [
+// Protected Pages
+import StudentDashboard from "../pages/Student/StudentDashboard";
+import FacultyDashboard from "../pages/Faculty/FacultyDashboard";
+import ClassCoordinatorDashboard from "../pages/ClassCoordinator/ClassCoordinatorDashboard";
+import HodDashboard from "../pages/Hod/HodDashboard";
+import ChangePasswordPage from "../pages/ChangePassword/ChangePasswordPage";
+
+export const router = createBrowserRouter([
+  // Public Routes
   {
     path: "/",
     element: (
@@ -21,40 +31,70 @@ const PublicRoutes = [
     path: "/login",
     element: <Login />,
   },
-];
 
-const StudentRoutes = [
+  // Student Routes
   {
     path: "/student",
-    element: <div>Student Dashboard</div>,
+    element: (
+      <ProtectedRoute allowedRoles={["Student"]}>
+        <StudentDashboard />
+      </ProtectedRoute>
+    ),
   },
-];
 
-const HODRoutes = [
+  // HOD Routes
   {
     path: "/hod",
-    element: <div>HOD Dashboard</div>,
+    element: (
+      <ProtectedRoute allowedRoles={["HOD"]}>
+        <HodDashboard />
+      </ProtectedRoute>
+    ),
   },
-];
-
-const ClassCoordinatorRoutes = [
   {
-    path: "/classcoordinator",
-    element: <div>Class Coordinator Dashboard</div>,
+    path: "/hod/teacher",
+    element: (
+      <ProtectedRoute allowedRoles={["HOD"]}>
+        <FacultyDashboard />
+      </ProtectedRoute>
+    ),
   },
-];
 
-const FacultyTeacherRoutes = [
+  // Teacher Routes
   {
     path: "/teacher",
-    element: <div>Faculty Teacher Dashboard</div>,
+    element: (
+      <ProtectedRoute allowedRoles={["Teacher"]}>
+        <FacultyDashboard />
+      </ProtectedRoute>
+    ),
   },
-];
 
-export const router = createBrowserRouter([
-  ...PublicRoutes,
-  ...(user?.role === "Student" ? StudentRoutes : []),
-  ...(user?.role === "HOD" ? HODRoutes : []),
-  ...(user?.role === "ClassCoordinator" ? ClassCoordinatorRoutes : []),
-  ...(user?.role === "Teacher" ? FacultyTeacherRoutes : []),
+  // Class Coordinator Routes
+  {
+    path: "/classcoordinator",
+    element: (
+      <ProtectedRoute allowedRoles={["ClassCoordinator"]}>
+        <ClassCoordinatorDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/classcoordinator/teacher",
+    element: (
+      <ProtectedRoute allowedRoles={["ClassCoordinator"]}>
+        <FacultyDashboard />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Change Password (all logged-in non-student roles)
+  {
+    path: "/confirm-password",
+    element: (
+      <ProtectedRoute allowedRoles={["Teacher", "ClassCoordinator", "HOD"]}>
+        <ChangePasswordPage />
+      </ProtectedRoute>
+    ),
+  },
 ]);

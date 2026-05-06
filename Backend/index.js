@@ -18,26 +18,26 @@ import submissionRoutes from "./src/routes/submission.route.js"
 
 dotenv.config();
 const PORT = process.env.PORT || 8080
-const app = express();  
+const app = express();
 
 app.use(cors(
   {
-    origin : process.env.FRONTEND_URL,
-    credentials : true
+    origin: process.env.FRONTEND_URL,
+    credentials: true
   }
 ));
 
-app.use(express.json());    
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 // all routes
-app.use("/api/v1/health",healthCheckRoutes)
+app.use("/api/v1/health", healthCheckRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/subjects", subjectRoutes)
 app.use("/api/v1/teachers", teacherRoutes)
 app.use('/api/v1/students', studentRoutes)
-app.use("/api/v1/verification",verifiedRoutes)
+app.use("/api/v1/verification", verifiedRoutes)
 app.use("/api/v1/submissions", submissionRoutes)
 
 app.listen(PORT, async () => {
@@ -45,4 +45,4 @@ app.listen(PORT, async () => {
   await connectDB();
 });
 
-app.use(errorMiddleware);
+// app.use(errorMiddleware);
