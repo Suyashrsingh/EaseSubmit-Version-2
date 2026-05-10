@@ -426,10 +426,10 @@ Backend (Node.js + Express Container)
 
 # 👨‍💻 Developers
 Backend Development
-Rushikesh Wagh
+=> **Rushikesh Wagh**
 Frontend Development
-Ketan Dewalkar
+=> **Ketan Dewalkar**
 Deployment & DevOps
-Suyash Singh
+=> **Suyash Singh**
 
 
